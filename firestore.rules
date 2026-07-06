@@ -1,0 +1,74 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && userRole() == 'admin';
+    }
+
+    function isLeadership() {
+      return isSignedIn() && (userRole() == 'admin' || userRole() == 'leader');
+    }
+
+    function isCallCentreOrLeadership() {
+      return isSignedIn() && (userRole() == 'callCentre' || isLeadership());
+    }
+
+    // /users/{uid} — only admin manages accounts; a user may read their own doc.
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // /members/{memberId} — everyone signed in can read; only leadership edits.
+    match /members/{memberId} {
+      allow read: if isSignedIn();
+      allow write: if isLeadership();
+    }
+
+    // /sessions/{sessionId} — everyone signed in can read.
+    // Ushers create sessions, and may only edit/delete their own entries.
+    match /sessions/{sessionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.recordedBy == request.auth.uid;
+      allow update, delete: if isSignedIn() &&
+        (resource.data.recordedBy == request.auth.uid || isLeadership());
+    }
+
+    // /callLogs/{callLogId} — pastoral privacy: only callCentre + leadership read.
+    // Callers may only edit their own logs.
+    match /callLogs/{callLogId} {
+      allow read: if isCallCentreOrLeadership();
+      allow create: if isCallCentreOrLeadership() &&
+        request.resource.data.calledBy == request.auth.uid;
+      allow update, delete: if isCallCentreOrLeadership() &&
+        (resource.data.calledBy == request.auth.uid || isLeadership());
+    }
+
+    // /assignments/{assignmentId} — assignees may update only the `status`
+    // field of their own tasks; leadership manages everything.
+    match /assignments/{assignmentId} {
+      allow read: if isSignedIn();
+      allow create, delete: if isLeadership();
+      allow update: if isLeadership() ||
+        (isSignedIn() &&
+          resource.data.assignedTo == request.auth.uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']));
+    }
+
+    // /events/{eventId} — everyone signed in can read; transport + leadership edit.
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && (userRole() == 'transport' || isLeadership());
+    }
+  }
+}

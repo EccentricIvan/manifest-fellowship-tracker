@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1049065579223",
+    "project_id": "manifest-fellowship-tracker",
+    "storage_bucket": "manifest-fellowship-tracker.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1049065579223:android:77eaa832ced1775a460692",
+        "android_client_info": {
+          "package_name": "com.manifestfellowship.manifest_fellowship_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBElHkbjG-rQwtrQ1PyarU5v-3GKagTjBk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -103,4 +103,10 @@ asset when sharing to Android phones; some devices hang scanning a raw
 - Phone OTP login
 - PDF export
 - Google Forms sync
-- Custom app logo / launcher icon (in progress)
+
+## Next session
+
+Working on the **app logo**: still deciding whether to use an existing
+image file or design something new from the Black/White/Golden Orange
+palette, and whether it should replace just the login screen's placeholder
+icon or also the Android launcher icon (via `flutter_launcher_icons`).

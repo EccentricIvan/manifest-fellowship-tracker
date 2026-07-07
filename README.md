@@ -1,17 +1,106 @@
-# manifest_fellowship_tracker
+# Manifest Fellowship Tracker
 
-A new Flutter project.
+A multi-user fellowship monitoring app for a university Christian fellowship
+(Victoria University & Makerere campuses, Uganda). Built with Flutter and a
+Firebase backend (Firestore + Firebase Auth), offline-first by default via
+Firestore's built-in persistence.
 
-## Getting Started
+## Roles
 
-This project is a starting point for a Flutter application.
+Each signed-in user has a `role` in `/users/{uid}`, and `AuthGate`
+(`lib/auth_gate.dart`) routes to the matching home screen:
 
-A few resources to get you started if this is your first Flutter project:
+| Role         | Home screen                        |
+|--------------|-------------------------------------|
+| `admin`      | Admin Dashboard                     |
+| `leader`     | Admin Dashboard                     |
+| `usher`      | Usher Home                          |
+| `callCentre` | Call Centre Home                    |
+| `transport`  | Transport Home                      |
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+If a signed-in user has no `/users/{uid}` doc yet, they see a
+"pending approval — contact admin" screen instead.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Features
+
+- **Usher**: record fellowship/prayer/outreach sessions with a +/- counter
+  form (Year 1s, Year 2s, Year 3+, visitors, new believers), auto-computed
+  total attendance, optional offering and notes.
+- **Members Register**: searchable member list, full add/edit form, and a
+  stripped-down "first-timer quick add" form for registering several
+  first-timers quickly during a service.
+- **Call Centre**: streams assignments given to the signed-in caller,
+  tap-to-dial via `tel:` links, and outcome buttons (reached / no answer /
+  needs visit / prayed with) that log a call and mark the assignment done.
+- **Transport**: event list plus a form for mobilised count, attended count,
+  and transport cost.
+- **Admin Dashboard**: this-week-vs-last-week attendance, a Year 1 trend line
+  chart and attendance bar chart (`fl_chart`), call-completion rate, pending
+  first-timer follow-ups, and tools to manage users/roles and assign calls.
+
+## Tech stack
+
+- Flutter (Material 3), `colorScheme` built from Black / White / Golden
+  Orange (`lib/theme.dart`)
+- `firebase_core`, `firebase_auth`, `cloud_firestore`
+- `intl`, `url_launcher`, `fl_chart`
+- Data models in `lib/models/` with `fromDoc`/`toMap` converters
+- One screen per file under `lib/screens/`
+
+## Firestore collections
+
+`users`, `members`, `sessions`, `callLogs`, `assignments`, `events` — see
+`firestore.rules` for the full field list and access rules (e.g. `callLogs`
+is readable only by `callCentre` + leadership for pastoral privacy;
+assignees can only update the `status` field of their own assignments).
+
+## Local setup
+
+This project's Flutter/Android SDKs and caches live on an external `E:`
+drive on the primary dev machine. Before running any `flutter`/Gradle
+command:
+
+```powershell
+$env:Path = "E:\dev\flutter\bin;$env:Path"
+$env:ANDROID_HOME = "E:\dev\android-sdk"
+$env:ANDROID_SDK_ROOT = "E:\dev\android-sdk"
+$env:PUB_CACHE = "E:\dev\.pub-cache"
+```
+
+Then:
+
+```powershell
+flutter pub get
+flutter run -d chrome   # or a connected Android device
+```
+
+Firebase is already connected (`lib/firebase_options.dart`, project
+`manifest-fellowship-tracker`). To reconnect from a fresh machine:
+
+```powershell
+firebase login
+dart pub global activate flutterfire_cli
+flutterfire configure --project=manifest-fellowship-tracker --platforms=android,web --yes
+```
+
+Deploy security rule changes with:
+
+```powershell
+firebase deploy --only firestore:rules --project manifest-fellowship-tracker
+```
+
+## Building an APK
+
+Local release builds are slow on low-RAM machines. Instead, push to `main`
+and let `.github/workflows/build-release-artifacts.yml` build it on
+GitHub's servers (~10 min) and publish an arm64 release APK — zipped and
+raw — to the rolling `latest-build` GitHub release. Prefer the zipped
+asset when sharing to Android phones; some devices hang scanning a raw
+`.apk` download but handle a `.zip` fine.
+
+## Not yet built (phase 2)
+
+- Phone OTP login
+- PDF export
+- Google Forms sync
+- Custom app logo / launcher icon (in progress)

@@ -98,6 +98,24 @@ raw — to the rolling `latest-build` GitHub release. Prefer the zipped
 asset when sharing to Android phones; some devices hang scanning a raw
 `.apk` download but handle a `.zip` fine.
 
+## Verified working
+
+All 5 role screens have been smoke-tested end-to-end against the real
+Firebase project (login → role routing → data write → Admin Dashboard
+aggregation), using throwaway test accounts per role. Two bugs turned up
+and were fixed:
+
+- `orderBy('name')` queries silently drop any document missing that exact
+  field (a Firestore behavior, not a crash) — hit this on accounts created
+  manually via the console with inconsistent field casing. Manage Users,
+  Members Register, and the assignment member-picker now fetch unsorted
+  and sort client-side instead.
+- The "Assign To" dropdown in New Assignment went blank after selecting a
+  value, because `AppUser` had no value equality, so `DropdownButtonFormField`
+  couldn't match the selection against a fresh list of instances from the
+  live `StreamBuilder`. Fixed by adding `==`/`hashCode` by `uid` — the
+  underlying save was never actually broken, just the display.
+
 ## Not yet built (phase 2)
 
 - Phone OTP login
@@ -106,7 +124,9 @@ asset when sharing to Android phones; some devices hang scanning a raw
 
 ## Next session
 
-Working on the **app logo**: still deciding whether to use an existing
-image file or design something new from the Black/White/Golden Orange
-palette, and whether it should replace just the login screen's placeholder
-icon or also the Android launcher icon (via `flutter_launcher_icons`).
+All 5 role screens are verified and the codebase is clean of test data.
+Remaining work is the **app logo**: still deciding whether to use an
+existing image file or design something new from the Black/White/Golden
+Orange palette, and whether it should replace just the login screen's
+placeholder icon or also the Android launcher icon (via
+`flutter_launcher_icons`).

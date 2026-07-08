@@ -56,10 +56,7 @@ class _MembersRegisterScreenState extends State<MembersRegisterScreen> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('members')
-            .orderBy('name')
-            .snapshots(),
+        stream: FirebaseFirestore.instance.collection('members').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -74,7 +71,8 @@ class _MembersRegisterScreenState extends State<MembersRegisterScreen> {
                 return m.name.toLowerCase().contains(_query) ||
                     m.phone.toLowerCase().contains(_query);
               })
-              .toList();
+              .toList()
+            ..sort((a, b) => a.name.compareTo(b.name));
 
           if (members.isEmpty) {
             return const Center(child: Text('No members found.'));

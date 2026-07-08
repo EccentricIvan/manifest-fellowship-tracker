@@ -43,4 +43,10 @@ class AppUser {
       'linkedMemberId': linkedMemberId,
     };
   }
+
+  @override
+  bool operator ==(Object other) => other is AppUser && other.uid == uid;
+
+  @override
+  int get hashCode => uid.hashCode;
 }

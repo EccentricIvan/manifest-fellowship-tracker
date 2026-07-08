@@ -11,10 +11,7 @@ class ManageUsersScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Manage Users')),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .orderBy('name')
-            .snapshots(),
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -22,7 +19,8 @@ class ManageUsersScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          final users = (snapshot.data?.docs ?? []).map(AppUser.fromDoc).toList();
+          final users = (snapshot.data?.docs ?? []).map(AppUser.fromDoc).toList()
+            ..sort((a, b) => a.name.compareTo(b.name));
           if (users.isEmpty) {
             return const Center(child: Text('No users yet.'));
           }

@@ -180,16 +180,15 @@ class _MemberPickerDialogState extends State<_MemberPickerDialog> {
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('members')
-                    .orderBy('name')
-                    .snapshots(),
+                stream:
+                    FirebaseFirestore.instance.collection('members').snapshots(),
                 builder: (context, snapshot) {
                   final members = (snapshot.data?.docs ?? [])
                       .map(Member.fromDoc)
                       .where((m) =>
                           _query.isEmpty || m.name.toLowerCase().contains(_query))
-                      .toList();
+                      .toList()
+                    ..sort((a, b) => a.name.compareTo(b.name));
                   return ListView.builder(
                     itemCount: members.length,
                     itemBuilder: (context, index) {

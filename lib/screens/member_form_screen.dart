@@ -20,12 +20,15 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
   late final TextEditingController _courseController;
+  late final TextEditingController _residenceController;
   String _gender = 'Male';
   int _yearOfStudy = 1;
   Campus _campus = Campus.victoria;
   MemberStatus _status = MemberStatus.active;
   late DateTime _dateJoined;
   late Set<String> _tags;
+  bool _wantsToServe = false;
+  bool _wantsTransport = false;
   bool _isSaving = false;
 
   static const _availableTags = ['firstTimer', 'newBeliever', 'leader'];
@@ -37,12 +40,15 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
     _nameController = TextEditingController(text: m?.name ?? '');
     _phoneController = TextEditingController(text: m?.phone ?? '');
     _courseController = TextEditingController(text: m?.course ?? '');
+    _residenceController = TextEditingController(text: m?.residence ?? '');
     _gender = m?.gender ?? 'Male';
     _yearOfStudy = m?.yearOfStudy ?? 1;
     _campus = m?.campus ?? Campus.victoria;
     _status = m?.status ?? MemberStatus.active;
     _dateJoined = m?.dateJoined ?? DateTime.now();
     _tags = {...(m?.tags ?? const [])};
+    _wantsToServe = m?.wantsToServe ?? false;
+    _wantsTransport = m?.wantsTransport ?? false;
   }
 
   @override
@@ -50,6 +56,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
     _nameController.dispose();
     _phoneController.dispose();
     _courseController.dispose();
+    _residenceController.dispose();
     super.dispose();
   }
 
@@ -78,6 +85,9 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
         dateJoined: _dateJoined,
         status: _status,
         tags: _tags.toList(),
+        residence: _residenceController.text.trim(),
+        wantsToServe: _wantsToServe,
+        wantsTransport: _wantsTransport,
       );
       final collection = FirebaseFirestore.instance.collection('members');
       if (widget.member == null) {
@@ -170,12 +180,30 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
               },
             ),
             const SizedBox(height: 16),
+            TextFormField(
+              controller: _residenceController,
+              decoration: const InputDecoration(labelText: 'Residence'),
+            ),
+            const SizedBox(height: 16),
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Date Joined'),
               subtitle: Text(DateFormat.yMMMd().format(_dateJoined)),
               trailing: const Icon(Icons.calendar_today),
               onTap: _pickDateJoined,
+            ),
+            const SizedBox(height: 16),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Wants to serve'),
+              value: _wantsToServe,
+              onChanged: (v) => setState(() => _wantsToServe = v),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Wants transport to service'),
+              value: _wantsTransport,
+              onChanged: (v) => setState(() => _wantsTransport = v),
             ),
             const SizedBox(height: 16),
             Text('Tags', style: Theme.of(context).textTheme.titleSmall),

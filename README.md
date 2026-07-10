@@ -116,17 +116,31 @@ and were fixed:
   live `StreamBuilder`. Fixed by adding `==`/`hashCode` by `uid` — the
   underlying save was never actually broken, just the display.
 
+## Google Form sync
+
+The Victoria campus registration form syncs into `/members` (and creates a
+pending `/assignments` follow-up for first-timers) via an Apps Script bound
+directly to the form — no Cloud Functions, stays on the free Spark plan. See
+[`tools/google_form_sync/README.md`](tools/google_form_sync/README.md) for
+setup and [`Code.gs`](tools/google_form_sync/Code.gs) for the script. As of
+this writing the script exists in-repo but the one-time setup (service
+account + trigger install, both outside this repo) hasn't been done yet —
+follow that README to activate it.
+
 ## Not yet built (phase 2)
 
 - Phone OTP login
 - PDF export
-- Google Forms sync
 
 ## Next session
 
 All 5 role screens are verified and the codebase is clean of test data.
-Remaining work is the **app logo**: still deciding whether to use an
-existing image file or design something new from the Black/White/Golden
-Orange palette, and whether it should replace just the login screen's
-placeholder icon or also the Android launcher icon (via
-`flutter_launcher_icons`).
+Two items are queued:
+
+1. **Google Form sync activation** — the script is written
+   (`tools/google_form_sync/`) but needs the service account created and
+   the trigger installed in the live Form; see that folder's README.
+2. **App logo**: still deciding whether to use an existing image file or
+   design something new from the Black/White/Golden Orange palette, and
+   whether it should replace just the login screen's placeholder icon or
+   also the Android launcher icon (via `flutter_launcher_icons`).

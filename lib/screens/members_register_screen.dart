@@ -83,16 +83,27 @@ class _MembersRegisterScreenState extends State<MembersRegisterScreen> {
             separatorBuilder: (_, _) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final member = members[index];
+              final locationParts = [
+                member.campus == Campus.victoria ? 'Victoria' : 'Makerere',
+                if (member.residence.isNotEmpty) member.residence,
+              ];
               return ListTile(
                 title: Text(member.name),
                 subtitle: Text(
-                  '${member.phone} · ${member.campus == Campus.victoria ? 'Victoria' : 'Makerere'} · Year ${member.yearOfStudy}',
+                  '${member.phone} · ${locationParts.join(', ')} · Year ${member.yearOfStudy}',
                 ),
                 trailing: Wrap(
                   spacing: 4,
-                  children: member.tags
-                      .map((t) => Chip(label: Text(t), visualDensity: VisualDensity.compact))
-                      .toList(),
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (member.wantsToServe)
+                      const Tooltip(message: 'Wants to serve', child: Icon(Icons.volunteer_activism, size: 18)),
+                    if (member.wantsTransport)
+                      const Tooltip(message: 'Wants transport', child: Icon(Icons.directions_bus, size: 18)),
+                    ...member.tags.map(
+                      (t) => Chip(label: Text(t), visualDensity: VisualDensity.compact),
+                    ),
+                  ],
                 ),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(

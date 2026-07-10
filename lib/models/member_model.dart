@@ -29,6 +29,9 @@ class Member {
   final DateTime dateJoined;
   final MemberStatus status;
   final List<String> tags;
+  final String residence;
+  final bool wantsToServe;
+  final bool wantsTransport;
 
   Member({
     required this.id,
@@ -41,6 +44,9 @@ class Member {
     required this.dateJoined,
     required this.status,
     required this.tags,
+    this.residence = '',
+    this.wantsToServe = false,
+    this.wantsTransport = false,
   });
 
   factory Member.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -56,6 +62,9 @@ class Member {
       dateJoined: (data['dateJoined'] as Timestamp?)?.toDate() ?? DateTime.now(),
       status: memberStatusFromString(data['status'] as String? ?? '') ?? MemberStatus.active,
       tags: List<String>.from(data['tags'] as List? ?? const []),
+      residence: data['residence'] as String? ?? '',
+      wantsToServe: data['wantsToServe'] as bool? ?? false,
+      wantsTransport: data['wantsTransport'] as bool? ?? false,
     );
   }
 
@@ -70,6 +79,9 @@ class Member {
       'dateJoined': Timestamp.fromDate(dateJoined),
       'status': status.name,
       'tags': tags,
+      'residence': residence,
+      'wantsToServe': wantsToServe,
+      'wantsTransport': wantsTransport,
     };
   }
 }
